@@ -61,8 +61,7 @@ class Refactoring {
 
         println(statements(invoice, plays))
 
-        val expected =
-            "청구내역(고객명: BigCohamlet                            65000       25asLike                           123000       12othello                          173000       10"
+        val expected = "청구내역(고객명: BigCo65000: 650 usd (55)58000: 580 usd (35)50000: 500 usd (40)총액: 1730 usd적립 포인트: 10"
         assertThat(statements(invoice, plays)).isEqualTo(expected)
     }
 
@@ -70,26 +69,32 @@ class Refactoring {
         var totalAmount = 0
         var result: String = "청구내역(고객명: ${invoices.customer}"
 
-        var volumeCredits = 0
         for (performance in invoices.performances) {
-            volumeCredits = volumeCreditsFor(performance)
-            totalAmount += amountFor(performance)
-            result += String.format(
-                usd(),
-                playFor(performance).name,
-                totalAmount,
-                volumeCredits
-            ).trim()
-
-
+            result += "${amountFor(performance)}: ${usd(amountFor(performance))} (${performance.audience})"
         }
+
+        result += "총액: ${usd(totalAmount())}"
+        result += "적립 포인트: ${totalVolumeCredits()}"
         return result
     }
 
-    private fun usd(): String {
-        val format = "%-30s %8s %8s\n"
-        return format
+    private fun totalAmount(): Int {
+        var totalAmount = 0
+        for (performance in invoice.performances) {
+            totalAmount += amountFor(performance)
+        }
+        return totalAmount
     }
+
+    private fun totalVolumeCredits(): Int {
+        var volumeCredits = 0
+        for (performance in invoice.performances) {
+            volumeCredits = volumeCreditsFor(performance)
+        }
+        return volumeCredits
+    }
+
+    private fun usd(amount: Int): String = "${amount/100} usd"
 
     private fun volumeCreditsFor(
         performance: Performance
