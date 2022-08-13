@@ -62,7 +62,7 @@ class Refactoring {
         println(statements(invoice, plays))
 
         val expected =
-            "청구내역(고객명: BigCohamlet                              650       25asLike                              580       12othello                             500       10"
+            "청구내역(고객명: BigCohamlet                            65000       25asLike                           123000       12othello                          173000       10"
         assertThat(statements(invoice, plays)).isEqualTo(expected)
     }
 
@@ -72,16 +72,12 @@ class Refactoring {
 
         var volumeCredits = 0
         for (performance in invoices.performances) {
-            var thisAmount = 0
-            thisAmount = amountFor(performance)
-
             volumeCredits = volumeCreditsFor(performance)
-
-            totalAmount += thisAmount
+            totalAmount += amountFor(performance)
             result += String.format(
                 usd(),
                 playFor(performance).name,
-                thisAmount / 100,
+                totalAmount,
                 volumeCredits
             ).trim()
 
