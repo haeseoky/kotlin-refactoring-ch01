@@ -69,7 +69,7 @@ class Refactoring {
         val format = "%-30s %8s %8s\n"
 
         for(performance in invoices.performances){
-            val play = plays.find { it.name == performance.playID } ?: throw IllegalArgumentException("없는 플래그")
+            val play = playFor(plays, performance)
             var thisAmount = 0
             thisAmount = amountFor(play, performance)
             volumeCredits += Math.max(performance.audience - 30, 0)
@@ -80,6 +80,11 @@ class Refactoring {
         }
         return result
     }
+
+    private fun playFor(
+        plays: List<Play>,
+        performance: Performance
+    ) = plays.find { it.name == performance.playID } ?: throw IllegalArgumentException("없는 플래그")
 
     private fun amountFor(
         play: Play,
