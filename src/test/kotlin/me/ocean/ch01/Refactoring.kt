@@ -4,6 +4,8 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import kotlin.math.floor
+import kotlin.math.max
 
 class Refactoring {
 
@@ -46,11 +48,11 @@ class Refactoring {
         
     """.trimIndent()
 
-    val plays:List<Play> = jacksonObjectMapper().readValue(playsData)
+    val plays: List<Play> = jacksonObjectMapper().readValue(playsData)
     val invoice: Invoice = jacksonObjectMapper().readValue(invoicesData)
 
     @Test
-    fun main(){
+    fun main() {
 
 
         println(plays)
@@ -59,26 +61,49 @@ class Refactoring {
 
         println(statements(invoice, plays))
 
-        val expected = "청구내역(고객명: BigCohamlet                              650       25asLike                              580       30othello                             500       40"
+        val expected =
+            "청구내역(고객명: BigCohamlet                              650       25asLike                              580       12othello                             500       10"
         assertThat(statements(invoice, plays)).isEqualTo(expected)
     }
 
     private fun statements(invoices: Invoice, plays: List<Play>): String {
         var totalAmount = 0
-        var volumeCredits = 0
-        var result : String = "청구내역(고객명: ${invoices.customer}"
-        val format = "%-30s %8s %8s\n"
+        var result: String = "청구내역(고객명: ${invoices.customer}"
 
-        for(performance in invoices.performances){
+        var volumeCredits = 0
+        for (performance in invoices.performances) {
             var thisAmount = 0
             thisAmount = amountFor(performance)
-            volumeCredits += Math.max(performance.audience - 30, 0)
+
+            volumeCredits = volumeCreditsFor(performance)
+
             totalAmount += thisAmount
-            result += String.format(format, playFor(performance).name, thisAmount/100, volumeCredits).trim()
+            result += String.format(
+                usd(),
+                playFor(performance).name,
+                thisAmount / 100,
+                volumeCredits
+            ).trim()
 
 
         }
         return result
+    }
+
+    private fun usd(): String {
+        val format = "%-30s %8s %8s\n"
+        return format
+    }
+
+    private fun volumeCreditsFor(
+        performance: Performance
+    ): Int {
+        var volumeCredits = 0
+        volumeCredits += max(performance.audience - 30, 0)
+        if ("comedy" == playFor(performance).type) {
+            volumeCredits += floor(performance.audience / 5.0).toInt()
+        }
+        return volumeCredits
     }
 
     private fun playFor(
@@ -88,7 +113,7 @@ class Refactoring {
     private fun amountFor(
         performance: Performance
     ): Int {
-        var result  = 0
+        var result = 0
         when (playFor(performance).type) {
             "tragedy" -> {
                 result = 40000
