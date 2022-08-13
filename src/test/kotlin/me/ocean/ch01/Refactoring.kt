@@ -9,18 +9,18 @@ class Refactoring {
 
     val playsTestData = """
         {
-            "hamlet": { "name": "Hamlet", "type": "tragedy" },
-            "asLike": { "name": "as-like", "type": "comedy" },
-            "othello": { "name": "Othello", "type": "tragedy" }
+            "hamlet": { "name": "hamlet", "type": "tragedy" },
+            "asLike": { "name": "asLike", "type": "comedy" },
+            "othello": { "name": "othello", "type": "tragedy" }
         }
     """.trimIndent()
 
 
     val playsData = """
         [
-            { "name": "Hamlet", "type": "tragedy" },
-            { "name": "as-like", "type": "comedy" },
-            { "name": "Othello", "type": "tragedy" }
+            { "name": "hamlet", "type": "tragedy" },
+            { "name": "asLike", "type": "comedy" },
+            { "name": "othello", "type": "tragedy" }
         ]
     """.trimIndent()
 
@@ -30,15 +30,15 @@ class Refactoring {
             "customer": "BigCo",
             "performances": [
               {
-                "playID": "Hamlet",
+                "playID": "hamlet",
                 "audience": 55
               },
               {
-                "playID": "as-like",
+                "playID": "asLike",
                 "audience": 35
               },
               {
-                "playID": "Othello",
+                "playID": "othello",
                 "audience": 40
               }
             ]
@@ -46,19 +46,20 @@ class Refactoring {
         
     """.trimIndent()
 
+    val plays:List<Play> = jacksonObjectMapper().readValue(playsData)
+    val invoice: Invoice = jacksonObjectMapper().readValue(invoicesData)
+
     @Test
     fun main(){
-        val mapper = jacksonObjectMapper()
-        val plays : List<Play> = mapper.readValue(playsData)
 
-        val invoice = mapper.readValue(invoicesData, Invoice::class.java)
 
         println(plays)
         println(invoice)
+        println(playsData)
 
         println(statements(invoice, plays))
 
-        val expected = "청구내역(고객명: BigCoHamlet                              650       25as-like                             580       30Othello                             500       40"
+        val expected = "청구내역(고객명: BigCohamlet                              650       25asLike                              580       30othello                             500       40"
         assertThat(statements(invoice, plays)).isEqualTo(expected)
     }
 
@@ -70,10 +71,10 @@ class Refactoring {
 
         for(performance in invoices.performances){
             var thisAmount = 0
-            thisAmount = amountFor(playFor(plays, performance), performance)
+            thisAmount = amountFor(performance)
             volumeCredits += Math.max(performance.audience - 30, 0)
             totalAmount += thisAmount
-            result += String.format(format, playFor(plays, performance).name, thisAmount/100, volumeCredits).trim()
+            result += String.format(format, playFor(performance).name, thisAmount/100, volumeCredits).trim()
 
 
         }
@@ -81,16 +82,14 @@ class Refactoring {
     }
 
     private fun playFor(
-        plays: List<Play>,
         performance: Performance
     ) = plays.find { it.name == performance.playID } ?: throw IllegalArgumentException("없는 플래그")
 
     private fun amountFor(
-        play: Play,
         performance: Performance
     ): Int {
         var result  = 0
-        when (play.type) {
+        when (playFor(performance).type) {
             "tragedy" -> {
                 result = 40000
                 if (performance.audience > 30) {
@@ -113,3 +112,5 @@ class Refactoring {
 data class Invoice(val customer: String, val performances: List<Performance>)
 data class Performance(val playID: String, val audience: Int)
 data class Play(val name: String, val type: String)
+
+data class PlaysData(val hamlet: Play, val asLike: Play, val othello: Play)
