@@ -69,12 +69,11 @@ class Refactoring {
         val format = "%-30s %8s %8s\n"
 
         for(performance in invoices.performances){
-            val play = playFor(plays, performance)
             var thisAmount = 0
-            thisAmount = amountFor(play, performance)
+            thisAmount = amountFor(playFor(plays, performance), performance)
             volumeCredits += Math.max(performance.audience - 30, 0)
             totalAmount += thisAmount
-            result += String.format(format, play.name, thisAmount/100, volumeCredits).trim()
+            result += String.format(format, playFor(plays, performance).name, thisAmount/100, volumeCredits).trim()
 
 
         }
