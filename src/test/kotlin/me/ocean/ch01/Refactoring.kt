@@ -75,7 +75,7 @@ class Refactoring {
 
         for(performance in invoices.performances){
             var thisAmount = 0
-            thisAmount = amountFor(playFor( performance), performance)
+            thisAmount = amountFor(performance)
             volumeCredits += Math.max(performance.audience - 30, 0)
             if ( "comedy" == playFor( performance).type ) volumeCredits += floor(performance.audience / 5.0).toInt()
             totalAmount += thisAmount
@@ -92,11 +92,10 @@ class Refactoring {
     ) = plays[performance.playID]!!
 
     private fun amountFor(
-        play: Play,
         performance: Performance
     ): Int {
         var result = 0
-        when (play.type) {
+        when (playFor( performance).type) {
             "tragedy" -> {
                 result = 40000
                 if (performance.audience > 30) {
