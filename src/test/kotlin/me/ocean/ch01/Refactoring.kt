@@ -73,21 +73,7 @@ class Refactoring {
         for(performance in invoices.performances){
             val play = plays.find { it.name == performance.playID } ?: throw IllegalArgumentException("없는 플래그")
             var thisAmount = 0
-            when(play.type){
-                "tragedy" -> {
-                    thisAmount = 40000
-                    if(performance.audience > 30) {
-                        thisAmount += 1000 * (performance.audience - 30)
-                    }
-                }
-                "comedy" -> {
-                    thisAmount = 30000
-                    if(performance.audience > 20) {
-                        thisAmount += 10000 + 500 * (performance.audience - 20)
-                    }
-                    thisAmount += 300 * performance.audience
-                }
-            }
+            thisAmount = amountFor(play, performance)
             volumeCredits += Math.max(performance.audience - 30, 0)
             if ( "comedy" == play.type ) volumeCredits += floor(performance.audience / 5.0).toInt()
             totalAmount += thisAmount
@@ -97,6 +83,29 @@ class Refactoring {
         result += "총액: $${totalAmount/100}\n"
         result += "적립 포인트: $volumeCredits"
         return result
+    }
+
+    private fun amountFor(
+        play: Play,
+        performance: Performance
+    ): Int {
+        var thisAmount = 0
+        when (play.type) {
+            "tragedy" -> {
+                thisAmount = 40000
+                if (performance.audience > 30) {
+                    thisAmount += 1000 * (performance.audience - 30)
+                }
+            }
+            "comedy" -> {
+                thisAmount = 30000
+                if (performance.audience > 20) {
+                    thisAmount += 10000 + 500 * (performance.audience - 20)
+                }
+                thisAmount += 300 * performance.audience
+            }
+        }
+        return thisAmount
     }
 
 }
