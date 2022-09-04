@@ -67,11 +67,15 @@ class Refactoring {
 
     private fun statements(invoices: Invoice, plays: Map<String, Play>): String {
 
-        var result : String = "청구내역(고객명: ${invoices.customer})\n"
+        return renderPlainText(invoices)
+    }
 
-        for(performance in invoices.performances){
+    private fun renderPlainText(invoices: Invoice): String {
+        var result: String = "청구내역(고객명: ${invoices.customer})\n"
+
+        for (performance in invoices.performances) {
             //청구내역을 출력한다.
-            result += "${playFor( performance).name}, ${usd(amountFor(performance))}, (${performance.audience}석)\n"
+            result += "${playFor(performance).name}, ${usd(amountFor(performance))}, (${performance.audience}석)\n"
         }
 
         result += "총액: ${usd(totalAmount())}\n"
