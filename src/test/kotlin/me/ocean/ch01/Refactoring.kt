@@ -53,8 +53,6 @@ class Refactoring {
     fun main(){
         val mapper = jacksonObjectMapper()
 
-        println(plays)
-
         val invoice = mapper.readValue(invoicesData, Invoice::class.java)
 
         println(statements(invoice, plays))
@@ -74,12 +72,11 @@ class Refactoring {
         var result : String = "청구내역(고객명: ${invoices.customer})\n"
 
         for(performance in invoices.performances){
-            var thisAmount = 0
-            thisAmount = amountFor(performance)
+
             volumeCredits += Math.max(performance.audience - 30, 0)
             if ( "comedy" == playFor( performance).type ) volumeCredits += floor(performance.audience / 5.0).toInt()
-            totalAmount += thisAmount
-            result += "${playFor( performance).name}, $${thisAmount/100}, (${performance.audience}석)\n"
+            totalAmount += amountFor(performance)
+            result += "${playFor( performance).name}, $${amountFor(performance)/100}, (${performance.audience}석)\n"
 
         }
         result += "총액: $${totalAmount/100}\n"
