@@ -72,7 +72,7 @@ class Refactoring {
         var result : String = "청구내역(고객명: ${invoices.customer})\n"
 
         for(performance in invoices.performances){
-            volumeCredits = volumeCreditsFor(performance)
+            volumeCredits += volumeCreditsFor(performance)
 
             //청구내역을 출력한다.
             totalAmount += amountFor(performance)
