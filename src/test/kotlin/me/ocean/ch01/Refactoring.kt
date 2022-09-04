@@ -72,9 +72,9 @@ class Refactoring {
         var result : String = "청구내역(고객명: ${invoices.customer})\n"
 
         for(performance in invoices.performances){
+            volumeCredits = volumeCreditsFor(performance)
 
-            volumeCredits += Math.max(performance.audience - 30, 0)
-            if ( "comedy" == playFor( performance).type ) volumeCredits += floor(performance.audience / 5.0).toInt()
+            //청구내역을 출력한다.
             totalAmount += amountFor(performance)
             result += "${playFor( performance).name}, $${amountFor(performance)/100}, (${performance.audience}석)\n"
 
@@ -82,6 +82,16 @@ class Refactoring {
         result += "총액: $${totalAmount/100}\n"
         result += "적립 포인트: $volumeCredits"
         return result
+    }
+
+    private fun volumeCreditsFor(
+        performance: Performance
+    ): Int {
+        //포인트 적립
+        var volumeCredits = 0
+        volumeCredits += Math.max(performance.audience - 30, 0)
+        if ("comedy" == playFor(performance).type) volumeCredits += floor(performance.audience / 5.0).toInt()
+        return volumeCredits
     }
 
     private fun playFor(
