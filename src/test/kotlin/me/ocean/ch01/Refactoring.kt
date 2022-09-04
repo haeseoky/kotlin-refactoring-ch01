@@ -4,6 +4,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import kotlin.math.floor
 
 class Refactoring {
 
@@ -53,26 +54,25 @@ class Refactoring {
 
         val invoice = mapper.readValue(invoicesData, Invoice::class.java)
 
-        println(plays)
-        println(invoice)
-
         println(statements(invoice, plays))
 
-        val expected = "청구내역(고객명: BigCoHamlet                              650       25as-like                             580       30Othello                             500       40"
+        val expected = "청구내역(고객명: BigCo)\n" +
+                "Hamlet, \$650, (55석)\n" +
+                "as-like, \$580, (35석)\n" +
+                "Othello, \$500, (40석)\n" +
+                "총액: \$1730\n" +
+                "적립 포인트: 47"
         assertThat(statements(invoice, plays)).isEqualTo(expected)
     }
 
     private fun statements(invoices: Invoice, plays: List<Play>): String {
         var totalAmount = 0
         var volumeCredits = 0
-        var result : String = "청구내역(고객명: ${invoices.customer}"
-        val format = "%-30s %8s %8s\n"
+        var result : String = "청구내역(고객명: ${invoices.customer})\n"
 
         for(performance in invoices.performances){
             val play = plays.find { it.name == performance.playID } ?: throw IllegalArgumentException("없는 플래그")
             var thisAmount = 0
-            println(play)
-            println(performance)
             when(play.type){
                 "tragedy" -> {
                     thisAmount = 40000
@@ -88,16 +88,14 @@ class Refactoring {
                     thisAmount += 300 * performance.audience
                 }
             }
-            println(thisAmount)
-            println(performance.audience)
             volumeCredits += Math.max(performance.audience - 30, 0)
-            println(volumeCredits)
+            if ( "comedy" == play.type ) volumeCredits += floor(performance.audience / 5.0).toInt()
             totalAmount += thisAmount
-            println(totalAmount)
-            result += String.format(format, play.name, thisAmount/100, volumeCredits).trim()
-
+            result += "${play.name}, $${thisAmount/100}, (${performance.audience}석)\n"
 
         }
+        result += "총액: $${totalAmount/100}\n"
+        result += "적립 포인트: $volumeCredits"
         return result
     }
 
