@@ -110,6 +110,7 @@ class Refactoring {
         //포인트 적립
         var volumeCredits = 0
         volumeCredits += Math.max(performance.audience - 30, 0)
+
         if ("comedy" == playFor(performance).type) volumeCredits += floor(performance.audience / 5.0).toInt()
         return volumeCredits
     }
@@ -121,26 +122,65 @@ class Refactoring {
     private fun amountFor(
         performance: Performance
     ): Int {
-        var result = 0
-        when (playFor(performance).type) {
+        val result = when (playFor(performance).type) {
             "tragedy" -> {
-                result = 40000
-                if (performance.audience > 30) {
-                    result += 1000 * (performance.audience - 30)
-                }
+                PlayPerformanceCalculator().amountCalcurate(performance, play = playFor(performance), TragedyCalculator())
             }
             "comedy" -> {
-                result = 30000
-                if (performance.audience > 20) {
-                    result += 10000 + 500 * (performance.audience - 20)
-                }
-                result += 300 * performance.audience
+                PlayPerformanceCalculator().amountCalcurate(performance, play = playFor(performance), ComedyCalculator())
             }
+            else -> 0
         }
         return result
     }
 
 }
+
+class PlayPerformanceCalculator{
+    fun amountCalcurate(performance: Performance, play: Play, performanceCalculator: PerformanceCalculator): Int {
+        return performanceCalculator.amountCalculate( performance, play)
+    }
+
+    fun volumeCreditsCalcurate(performance: Performance, play: Play, performanceCalculator: PerformanceCalculator): Int {
+        return performanceCalculator.volumeCreditsCalculate( performance)
+    }
+}
+
+interface PerformanceCalculator {
+    fun amountCalculate(performance: Performance, play: Play): Int
+    fun volumeCreditsCalculate(performance: Performance): Int
+}
+
+class TragedyCalculator : PerformanceCalculator {
+    override fun amountCalculate(performance: Performance, play: Play): Int {
+        var result = 40000
+        if (performance.audience > 30) {
+            result += 1000 * (performance.audience - 30)
+        }
+        return result
+    }
+
+    override fun volumeCreditsCalculate(performance: Performance): Int {
+        TODO("Not yet implemented")
+    }
+}
+
+class ComedyCalculator : PerformanceCalculator {
+    override fun amountCalculate(performance: Performance, play: Play): Int {
+        var result = 30000
+        if (performance.audience > 20) {
+            result += 10000 + 500 * (performance.audience - 20)
+        }
+        result += 300 * performance.audience
+        return result
+    }
+
+    override fun volumeCreditsCalculate(performance: Performance): Int {
+        TODO("Not yet implemented")
+    }
+}
+
+
 
 data class Invoice(var customer: String, var performances: List<Performance>)
 data class Performance(val playID: String, val audience: Int)
