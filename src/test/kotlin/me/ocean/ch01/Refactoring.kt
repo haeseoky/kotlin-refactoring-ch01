@@ -80,21 +80,21 @@ class Refactoring {
     }
 
     private fun totalAmount(): Int {
-        var totalAmount = 0
+        var result = 0
         for (performance in invoices.performances) {
             //청구내역을 출력한다.
-            totalAmount += amountFor(performance)
+            result += amountFor(performance)
         }
-        return totalAmount
+        return result
     }
 
     private fun totalVolumeCredits(): Int {
-        var volumeCredits = 0
+        var result = 0
         for (performance in invoices.performances) {
-            volumeCredits += volumeCreditsFor(performance)
+            result += volumeCreditsFor(performance)
 
         }
-        return volumeCredits
+        return result
     }
 
     private fun usd(totalAmount: Int) = "$${totalAmount / 100}"
