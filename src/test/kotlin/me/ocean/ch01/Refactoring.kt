@@ -8,15 +8,6 @@ import kotlin.math.floor
 
 class Refactoring {
 
-    val playsTestData = """
-        {
-            "hamlet": { "name": "Hamlet", "type": "tragedy" },
-            "asLike": { "name": "as-like", "type": "comedy" },
-            "othello": { "name": "Othello", "type": "tragedy" }
-        }
-    """.trimIndent()
-
-
     val playsData = """
         {
             "Hamlet": { "name": "Hamlet", "type": "tragedy" },
@@ -52,7 +43,7 @@ class Refactoring {
     var invoices = jacksonObjectMapper().readValue(invoicesData, Invoice::class.java)
 
     @Test
-    fun main(){
+    fun main() {
 
         println(statements(invoices, plays))
 
@@ -67,19 +58,29 @@ class Refactoring {
 
     private fun statements(invoices: Invoice, plays: Map<String, Play>): String {
 
-        return renderPlainText(invoices)
+        return renderPlainText(createStatementData(invoices, plays))
     }
 
-    private fun renderPlainText(invoices: Invoice): String {
-        var result: String = "청구내역(고객명: ${invoices.customer})\n"
+    private fun createStatementData(invoices: Invoice, plays: Map<String, Play>): StatementData {
 
-        for (performance in invoices.performances) {
+        return StatementData(
+            customer = invoices.customer,
+            performances = invoices.performances,
+            totalAmount = totalAmount(),
+            totalVolumeCredits = totalVolumeCredits()
+        )
+    }
+
+    private fun renderPlainText(data: StatementData): String {
+        var result: String = "청구내역(고객명: ${data.customer})\n"
+
+        for (performance in data.performances) {
             //청구내역을 출력한다.
             result += "${playFor(performance).name}, ${usd(amountFor(performance))}, (${performance.audience}석)\n"
         }
 
-        result += "총액: ${usd(totalAmount())}\n"
-        result += "적립 포인트: ${totalVolumeCredits()}"
+        result += "총액: ${usd(data.totalAmount)}\n"
+        result += "적립 포인트: ${data.totalVolumeCredits}"
         return result
     }
 
@@ -121,7 +122,7 @@ class Refactoring {
         performance: Performance
     ): Int {
         var result = 0
-        when (playFor( performance).type) {
+        when (playFor(performance).type) {
             "tragedy" -> {
                 result = 40000
                 if (performance.audience > 30) {
@@ -141,6 +142,13 @@ class Refactoring {
 
 }
 
-data class Invoice(val customer: String, val performances: List<Performance>)
+data class Invoice(var customer: String, var performances: List<Performance>)
 data class Performance(val playID: String, val audience: Int)
 data class Play(val name: String, val type: String)
+
+data class StatementData(
+    val customer: String,
+    val performances: List<Performance>,
+    var totalAmount: Int = 0,
+    var totalVolumeCredits: Int = 0
+)
