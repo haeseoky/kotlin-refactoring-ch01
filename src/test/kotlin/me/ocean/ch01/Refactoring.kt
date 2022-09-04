@@ -68,18 +68,18 @@ class Refactoring {
 
     private fun statements(invoices: Invoice, plays: Map<String, Play>): String {
         var totalAmount = 0
-        var volumeCredits = 0
         var result : String = "청구내역(고객명: ${invoices.customer})\n"
 
-        for(performance in invoices.performances){
-            volumeCredits += volumeCreditsFor(performance)
-
-        }
         for(performance in invoices.performances){
 
             //청구내역을 출력한다.
             totalAmount += amountFor(performance)
             result += "${playFor( performance).name}, ${usd(amountFor(performance))}, (${performance.audience}석)\n"
+
+        }
+        var volumeCredits = 0
+        for(performance in invoices.performances){
+            volumeCredits += volumeCreditsFor(performance)
 
         }
 
