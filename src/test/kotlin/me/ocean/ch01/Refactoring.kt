@@ -74,13 +74,12 @@ class Refactoring {
         var result : String = "청구내역(고객명: ${invoices.customer})\n"
 
         for(performance in invoices.performances){
-            val play = playFor( performance)
             var thisAmount = 0
-            thisAmount = amountFor(play, performance)
+            thisAmount = amountFor(playFor( performance), performance)
             volumeCredits += Math.max(performance.audience - 30, 0)
-            if ( "comedy" == play.type ) volumeCredits += floor(performance.audience / 5.0).toInt()
+            if ( "comedy" == playFor( performance).type ) volumeCredits += floor(performance.audience / 5.0).toInt()
             totalAmount += thisAmount
-            result += "${play.name}, $${thisAmount/100}, (${performance.audience}석)\n"
+            result += "${playFor( performance).name}, $${thisAmount/100}, (${performance.audience}석)\n"
 
         }
         result += "총액: $${totalAmount/100}\n"
