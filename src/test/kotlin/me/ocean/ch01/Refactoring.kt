@@ -74,11 +74,15 @@ class Refactoring {
         for(performance in invoices.performances){
             volumeCredits += volumeCreditsFor(performance)
 
+        }
+        for(performance in invoices.performances){
+
             //청구내역을 출력한다.
             totalAmount += amountFor(performance)
             result += "${playFor( performance).name}, ${usd(amountFor(performance))}, (${performance.audience}석)\n"
 
         }
+
         result += "총액: ${usd(totalAmount)}\n"
         result += "적립 포인트: $volumeCredits"
         return result
