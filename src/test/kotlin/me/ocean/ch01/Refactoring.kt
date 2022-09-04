@@ -49,13 +49,12 @@ class Refactoring {
         
     """.trimIndent()
 
+    var invoices = jacksonObjectMapper().readValue(invoicesData, Invoice::class.java)
+
     @Test
     fun main(){
-        val mapper = jacksonObjectMapper()
 
-        val invoice = mapper.readValue(invoicesData, Invoice::class.java)
-
-        println(statements(invoice, plays))
+        println(statements(invoices, plays))
 
         val expected = "청구내역(고객명: BigCo)\n" +
                 "Hamlet, \$650, (55석)\n" +
@@ -63,7 +62,7 @@ class Refactoring {
                 "Othello, \$500, (40석)\n" +
                 "총액: \$1730\n" +
                 "적립 포인트: 47"
-        assertThat(statements(invoice, plays)).isEqualTo(expected)
+        assertThat(statements(invoices, plays)).isEqualTo(expected)
     }
 
     private fun statements(invoices: Invoice, plays: Map<String, Play>): String {
@@ -71,21 +70,23 @@ class Refactoring {
         var result : String = "청구내역(고객명: ${invoices.customer})\n"
 
         for(performance in invoices.performances){
-
             //청구내역을 출력한다.
             totalAmount += amountFor(performance)
             result += "${playFor( performance).name}, ${usd(amountFor(performance))}, (${performance.audience}석)\n"
-
-        }
-        var volumeCredits = 0
-        for(performance in invoices.performances){
-            volumeCredits += volumeCreditsFor(performance)
-
         }
 
         result += "총액: ${usd(totalAmount)}\n"
-        result += "적립 포인트: $volumeCredits"
+        result += "적립 포인트: ${totalVolumeCredits()}"
         return result
+    }
+
+    private fun totalVolumeCredits(): Int {
+        var volumeCredits = 0
+        for (performance in invoices.performances) {
+            volumeCredits += volumeCreditsFor(performance)
+
+        }
+        return volumeCredits
     }
 
     private fun usd(totalAmount: Int) = "$${totalAmount / 100}"
