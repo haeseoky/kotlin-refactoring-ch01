@@ -18,12 +18,14 @@ class Refactoring {
 
 
     val playsData = """
-        [
-            { "name": "Hamlet", "type": "tragedy" },
-            { "name": "as-like", "type": "comedy" },
-            { "name": "Othello", "type": "tragedy" }
-        ]
+        {
+            "Hamlet": { "name": "Hamlet", "type": "tragedy" },
+            "as-like": { "name": "as-like", "type": "comedy" },
+            "Othello": { "name": "Othello", "type": "tragedy" }
+        }
     """.trimIndent()
+
+    var plays = jacksonObjectMapper().readValue<Map<String, Play>>(playsData)
 
     private val invoicesData = """
         
@@ -50,7 +52,8 @@ class Refactoring {
     @Test
     fun main(){
         val mapper = jacksonObjectMapper()
-        val plays : List<Play> = mapper.readValue(playsData)
+
+        println(plays)
 
         val invoice = mapper.readValue(invoicesData, Invoice::class.java)
 
@@ -65,13 +68,13 @@ class Refactoring {
         assertThat(statements(invoice, plays)).isEqualTo(expected)
     }
 
-    private fun statements(invoices: Invoice, plays: List<Play>): String {
+    private fun statements(invoices: Invoice, plays: Map<String, Play>): String {
         var totalAmount = 0
         var volumeCredits = 0
         var result : String = "청구내역(고객명: ${invoices.customer})\n"
 
         for(performance in invoices.performances){
-            val play = plays.find { it.name == performance.playID } ?: throw IllegalArgumentException("없는 플래그")
+            val play = playFor( performance)
             var thisAmount = 0
             thisAmount = amountFor(play, performance)
             volumeCredits += Math.max(performance.audience - 30, 0)
@@ -84,6 +87,10 @@ class Refactoring {
         result += "적립 포인트: $volumeCredits"
         return result
     }
+
+    private fun playFor(
+        performance: Performance
+    ) = plays[performance.playID]!!
 
     private fun amountFor(
         play: Play,
